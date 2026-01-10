@@ -1,10 +1,11 @@
 import User from "../models/user.models";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-
+import jwt, { SignOptions } from "jsonwebtoken";
+import {generateAccessToken, generateRefreshToken} from "../utils/token";
 
 export const Register = async (req : Request, res : Response) => {
-    //  try {
+    try {
         const {first_name, last_name, email, password} = req.body;
 
         if(!first_name && !email) {
@@ -30,17 +31,24 @@ export const Register = async (req : Request, res : Response) => {
             email,
             password : hashedPassword
         });
+        const token = generateAccessToken({ userId: user.id });
+        const Refreshtoken = generateRefreshToken({ userId: user.id });
 
-        res.status(200).json( {
+        await user.updateOne( {
+            refresh_token : Refreshtoken,
+        });
+
+        res.status(200).json( { 
             success : true,
             message : 'user created successfully',
-            user : user
+            user : user,
+            token : token
         })
-    // } catch (error) {
-    //     res.status(500).json({
-    //         success: false,
-    //         message : 'something went wrong',
-    //         error
-    //     })
-    // }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message : 'something went wrong',
+            error
+        })
+    }
 }

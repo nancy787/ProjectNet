@@ -20,6 +20,9 @@ const UserSchema = new Schema( {
     password : {
         type : String,
         required : true,
+    },
+    refresh_token : {
+        type : String,
     }
 } , {timestamps : true})
 

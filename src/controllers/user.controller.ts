@@ -52,3 +52,53 @@ export const Register = async (req : Request, res : Response) => {
         })
     }
 }
+
+
+export const Login = async (req : Request, res : Response) => {
+     try {
+        const {email, password} = req.body;
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "email and password are required",
+            });
+        }
+
+       const user = await User.findOne({ email });
+            if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password",
+            });
+        }
+
+        const checkPassword = await bcrypt.compare(password, user.password);
+
+        if (!checkPassword) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password",
+            });
+        }
+
+        const token = generateAccessToken({ userId: user.id });
+        const Refreshtoken = generateRefreshToken({ userId: user.id });
+
+        await user.updateOne( {
+            refresh_token : Refreshtoken,
+        });
+
+        res.status(200).json( { 
+            success : true,
+            message : 'User Logged in Successfully',
+            user : user,
+            token : token
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message : 'something went wrong',
+            error
+        })
+    }
+}

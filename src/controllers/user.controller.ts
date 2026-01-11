@@ -31,7 +31,7 @@ export const Register = async (req : Request, res : Response) => {
             email,
             password : hashedPassword
         });
-        const token = generateAccessToken({ userId: user.id });
+        const token        = generateAccessToken({ userId: user.id });
         const Refreshtoken = generateRefreshToken({ userId: user.id });
 
         await user.updateOne( {
@@ -55,7 +55,7 @@ export const Register = async (req : Request, res : Response) => {
 
 
 export const Login = async (req : Request, res : Response) => {
-     try {
+    try {
         const {email, password} = req.body;
         if (!email || !password) {
             return res.status(400).json({

@@ -18,7 +18,7 @@ export const generateAccessToken = (payload: TokenPayload) => {
 
 
 export const generateRefreshToken = (payload: TokenPayload) => {
-  const secret = process.env.JWT_SECRET 
+  const secret = process.env.REFRESH_SECRET 
   if(!secret) {
     throw new Error('secret is undefinded');
   }

@@ -102,3 +102,18 @@ export const Login = async (req : Request, res : Response) => {
         })
     }
 }
+
+export const getProfile = async (req : Request, res : Response) => {
+    const requser = (req as any).user;
+    const user = await User.findById(requser.userId).select('-password -refresh_token -__v')
+    if(!user) {
+        return res.status(404).json( {
+            'success' : false,
+            'message' : 'unauthorized'
+        })
+    }
+    return res.status(200).json({
+        'success' : true,
+        'user' : user
+    })
+}

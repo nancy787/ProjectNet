@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
 import {generateAccessToken, generateRefreshToken} from "../utils/token";
+import { stat } from "node:fs";
 
 export const Register = async (req : Request, res : Response) => {
     try {
@@ -116,4 +117,40 @@ export const getProfile = async (req : Request, res : Response) => {
         'success' : true,
         'user' : user
     })
+}
+
+export const updatePassword = async(req : Request, res : Response) => {
+    const reqUser = (req as any).user
+    let {password} = req.body;
+    if(!password){
+        return res.status(400).json({
+            status : 'false',
+            message : 'password is required'
+        });
+    }
+
+    const SALT_ROUNDS = 10;
+    const hashedPassword : string = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const Updateuser = await User.findByIdAndUpdate(reqUser.userId, {
+        password : hashedPassword
+    });
+
+    if(!Updateuser) {
+        return res.status(404).json( {
+            status : false,
+             message : 'user not found!',
+        })
+    }
+
+    return res.status(200).json( {
+        status : true,
+        message : 'password updated successfully!',
+        Updateuser : Updateuser
+    });
+}
+
+
+export const updateEmail = async(req : Request, res : Response) => {
+    
 }
